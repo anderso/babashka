@@ -93,13 +93,15 @@
   (test-doric-cyclic-dep-problem))
 
 ;;;; babashka.process
-(when-not (windows?)
-  ;; test built-in babashka.process
-  (test-namespaces 'babashka.process-test)
+;; test built-in babashka.process
+(test-namespaces 'babashka.process-test)
 
+(when (= "native" (System/getenv "BABASHKA_TEST_ENV"))
   ;; test babashka.process from source
+  #_{:clj-kondo/ignore [:duplicate-require]}
   (require '[babashka.process] :reload)
-  (test-namespaces 'babashka.process-test))
+  (System/setProperty "babashka.process.test.reload" "true")
+  (test-namespaces 'babashka.process-test 'babashka.process-exec-test))
 
 ;;;; final exit code
 

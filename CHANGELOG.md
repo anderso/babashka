@@ -9,7 +9,97 @@ A preview of the next release can be installed from
 
 ## Unreleased
 
+- Add `java.security.KeyFactory`, `java.security.spec.PKCS8EncodedKeySpec`, `java.net.URISyntaxException`
+- Fix babashka.process/exec wrt `babashka.process/*defaults*`
+- #1632: Partial fix for `(.readPassword (System/console))`
+- Enable producing self-contained binaries using [uberjars](https://github.com/babashka/babashka/wiki/Self-contained-executable#uberjar)
+- Bump httpkit to `2.8.0-beta3` (fixes GraalVM issue with virtual threads)
+
+## 1.3.185 (2023-09-28)
+
+- [#1624](https://github.com/babashka/babashka/pull/1624): Use Oracle GraalVM 21 ([@lispyclouds](https://github.com/lispyclouds))
+- Use PGO to speed up loops (now 2-3x faster for `(time (loop [val 0 cnt 10000000] (if (pos? cnt) (recur (inc val) (dec cnt)) val)))`!)
+- Bump babashka.http-client to v0.4.15
+- Bump rewrite-clj to v0.1.1.47
+- [#1619](https://github.com/babashka/babashka/issues/1619): Fix reflection issue with `Thread/sleep` in `core.async/timeout`
+- Support interop on `java.util.stream.IntStream`
+- [#1513](https://github.com/babashka/babashka/issues/1513): Fix interop on `Thread/sleep` with numbers that aren't already longs
+- Bump babashka.cli to 0.7.53
+- Fix [#babashka.nrepl/66](https://github.com/babashka/babashka.nrepl/issues/66)
+- Various nREPL server improvements (classpath op, file lookup information for `cider-find-var`)
+- Bump cheshire to 5.12.0
+
+## 1.3.184 (2023-08-22)
+
+- Remove leftover debugging output from deps.clj
+
+## 1.3.183 (2023-08-22)
+
+- [#1592](https://github.com/babashka/babashka/issues/1592): expose `sci.core` in babashka
+- [#1596](https://github.com/babashka/babashka/issues/1596): Fix `clojure.java.browse/browse-url` truncates URLs with multiple query parameters on Windows
+- [#1599](https://github.com/babashka/babashka/issues/1599): propagate error from `run` when task does not exist
+- Bump clj-yaml to `1.0.27`
+- [#1604](https://github.com/babashka/babashka/issues/1604): throw `FileNotFoundException` when requiring namespace whose file cannot be found (as JVM Clojure does)
+- Bump integrant CI tests
+- [#1600](https://github.com/babashka/babashka/issues/1600): use pagesize of 64K on linux aarch64, so it works on Asahi linux
+- Expose `selmer.parser/resolve-arg`
+- [#1610](https://github.com/babashka/babashka/issues/1610): expose `babashka.http-client.websocket` namespace
+- Bump `babashka.http-client` to `0.4.14`
+- [#1568](https://github.com/babashka/babashka/issues/1568): warn when task overrides built-in command
+
+## 1.3.182 (2023-07-20)
+
+- [#1579](https://github.com/babashka/babashka/issues/1579): add `clojure.tools.reader/resolve-symbol`
+- [#1581](https://github.com/babashka/babashka/issues/1581): `bb print-deps`: sort dependencies ([@teodorlu](https://github.com/teodorlu))
+- Upgrade `babashka.http-client` to `0.4.12`, fixes `:insecure` option
+- Bump [edamame](https://github.com/borkdude/edamame) to `1.3.23`: fixes infinite loop with reader conditional expression
+- Bump [Selmer](https://github.com/yogthos/Selmer) to Bumping to `1.12.59`
+- Bump [deps.clj](https://github.com/borkdude/deps.clj) with more fixes which should make downloading/installation of tools jar more robust
+- Add `javax.net.ssl.X509ExtendedTrustManager` class
+- Bump [babashka.process](https://github.com/babashka/process): accept path or file as `:dir` argument
+- Bump [hiccup](https://github.com/weavejester/hiccup) to `2.0.0-RC1`
+
+## 1.3.181 (2023-06-13)
+
+- [#1575](https://github.com/babashka/babashka/issues/1575): fix command line parsing problem with `-e` + `*command-line-args*`
+- [#1576](https://github.com/babashka/babashka/issues/1576): make downloading/unzipping of deps.clj tools .zip file more robust
+
+## 1.3.180 (2023-05-28)
+
+- [#1524](https://github.com/babashka/babashka/issues/1524): Remove dynamic builds for linux-aarch64 ([@lispyclouds](https://github.com/lispyclouds))
+- [#1577](https://github.com/babashka/babashka/issues/1557): Add support for `babashka.process/exec` after namespace reload of `babashka.process` ([@lread](https://github.com/lread))
+- [#1548](https://github.com/babashka/babashka/issues/1548): shell and sh should respect `babashka.process/*defaults*`
+- [#1524](https://github.com/babashka/babashka/issues/1524): deprecate (remove) linux-aarch64 dynamic binary build
+- Expose `org.graalvm.nativeimage.ProcessProperties/exec`
+- Bump `babashka.http-client` to `0.3.11`
+- Bump `babashka.fs` to `0.4.19`
+- Bump `babashka.process` to `0.5.21`
+
+## 1.3.179 (2023-04-26)
+
+- [#1544](https://github.com/babashka/babashka/issues/1544): `:local/root` in script-adjacent bb.edn should resolve relative to script
+- [#1545](https://github.com/babashka/babashka/issues/1545): Adjacent `bb.edn` not respected with explicit `-f` option
+- [#1546](https://github.com/babashka/babashka/issues/1546): add `.contains` for vector and lazy-seq
+
+## 1.3.178 (2023-04-21)
+
+- Fix regression with [#1541](https://github.com/babashka/babashka/issues/1541)
+
+## 1.3.177 (2023-04-21)
+
+- [#1541](https://github.com/babashka/babashka/issues/1541): respect `bb.edn`
+  adjacent to invoked file. This eases writing system-global scripts from
+  projects without using bbin. See [docs](https://book.babashka.org/#_script_adjacent_bb_edn).
 - [#1523](https://github.com/babashka/babashka/pull/1523): Reduce the size of the Docker images ([@raszi](https://github.com/raszi))
+- Upgrade deps.clj to v1.11.1.1273
+- Upgrade transit-clj to 1.0.333
+- Add `java.security.cert.CertificateFactory`
+- Bump clj-yaml to 1.0.26
+- Bump edamame to 1.3.21
+- Add `UnsupportedOperationException`
+- Bump babashka CLI to 0.7.51
+- Bump babashka http-client to 0.2.9
+- Add `--install-exit-handlers` to native-image build to support shutdown hook + SIGTERM
 
 ## 1.3.176 (2023-03-18)
 
@@ -724,7 +814,7 @@ Babashka.pods:
 - Add `babashka.task` `System` property [#837](https://github.com/babashka/babashka/issues/837)
 - Allow thread-first with `shell` like `babashka.process` [#829](https://github.com/babashka/babashka/issues/829)
 
-## 0.4.0
+## 0.4.0 (2021-05-08)
 
 Babashka proper:
 
@@ -734,7 +824,7 @@ Babashka proper:
   [jasentaa](https://github.com/rm-hull/jasentaa) parser combinator library
 - Update Selmer to 1.12.40
 
-Sci:
+SCI:
 
 - Better error msg for protocol not found or class
 
