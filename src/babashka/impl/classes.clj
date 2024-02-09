@@ -91,7 +91,8 @@
     java.util.Arrays
     {:methods [{:name "copyOf"}
                {:name "copyOfRange"}
-               {:name "equals"}]}
+               {:name "equals"}
+               {:name "fill"}]}
     ;; this fixes clojure.lang.Reflector for Java 11
     java.lang.reflect.AccessibleObject
     {:methods [{:name "canAccess"}]}
@@ -227,6 +228,7 @@
     javax.crypto.SecretKey
     javax.crypto.SecretKeyFactory
     javax.crypto.spec.GCMParameterSpec
+    javax.crypto.spec.IvParameterSpec
     javax.crypto.spec.PBEKeySpec
     javax.crypto.spec.SecretKeySpec
     javax.net.ssl.HostnameVerifier ;; clj-http-lite
@@ -442,6 +444,7 @@
                 java.time.temporal.TemporalAdjusters
                 java.time.temporal.TemporalAmount
                 java.time.temporal.TemporalField
+                java.time.temporal.WeekFields
                 ~(symbol "[Ljava.time.temporal.TemporalField;")
                 java.time.format.TextStyle
                 java.time.temporal.Temporal
@@ -461,6 +464,7 @@
           java.util.concurrent.BlockingQueue
           java.util.concurrent.ArrayBlockingQueue
           java.util.concurrent.LinkedBlockingQueue
+          java.util.concurrent.ScheduledFuture
           java.util.concurrent.ScheduledThreadPoolExecutor
           java.util.concurrent.Semaphore
           java.util.concurrent.ThreadFactory
@@ -499,6 +503,7 @@
           java.util.Base64$Encoder
           java.util.Date
           java.util.HashMap
+          java.util.HashSet
           java.util.IdentityHashMap
           java.util.InputMismatchException
           java.util.List
@@ -594,6 +599,7 @@
                       clojure.lang.ITransientVector
                       clojure.lang.Iterate
                       clojure.lang.LispReader$Resolver
+                      clojure.lang.LongRange
                       clojure.lang.Named
                       clojure.lang.Keyword
                       clojure.lang.PersistentArrayMap
@@ -741,6 +747,8 @@
                          java.security.cert.X509Certificate
                          (instance? java.io.Console v)
                          java.io.Console
+                         (instance? java.util.Set v)
+                         java.util.Set
                          ;; keep commas for merge friendliness
                          )))
         m (assoc m (list 'quote 'clojure.lang.Var) 'sci.lang.Var)
@@ -803,6 +811,7 @@
     Number java.lang.Number
     NumberFormatException java.lang.NumberFormatException
     Object java.lang.Object
+    Runnable java.lang.Runnable
     Runtime java.lang.Runtime
     RuntimeException java.lang.RuntimeException
     Process java.lang.Process

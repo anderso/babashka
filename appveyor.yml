@@ -7,8 +7,8 @@ image: Visual Studio 2022
 clone_folder: C:\projects\babashka
 
 environment:
-  GRAALVM_HOME: C:\projects\babashka\graalvm\graalvm-jdk-21+35.1
-  JAVA_HOME: C:\projects\babashka\graalvm\graalvm-jdk-21+35.1
+  GRAALVM_HOME: C:\projects\babashka\graalvm\graalvm-jdk-21.0.2+13.1
+  JAVA_HOME: C:\projects\babashka\graalvm\graalvm-jdk-21.0.2+13.1
   BABASHKA_XMX: "-J-Xmx5g"
 
 skip_commits:
@@ -23,6 +23,9 @@ cache:
 
 clone_script:
 - cmd: git config --global core.autocrlf true
+
+- cmd: git config --global core.symlinks true
+
 - ps: >-
     if(-not $env:APPVEYOR_PULL_REQUEST_NUMBER) {
       git clone -q --branch=$env:APPVEYOR_REPO_BRANCH https://github.com/$env:APPVEYOR_REPO_NAME.git $env:APPVEYOR_BUILD_FOLDER
@@ -36,10 +39,12 @@ clone_script:
     }
 - cmd: git submodule update --init --recursive
 
+- cmd: git reset --hard
+
 build_script:
 # TODO: Extract the zip by removing the top level folder to remove the hardcoded path for GRAALVM_HOME
 - cmd: >-
-    powershell -Command "if (Test-Path('graalvm')) { return } else { (New-Object Net.WebClient).DownloadFile('https://download.oracle.com/graalvm/21/archive/graalvm-jdk-21_windows-x64_bin.zip', 'graalvm.zip') }"
+    powershell -Command "if (Test-Path('graalvm')) { return } else { (New-Object Net.WebClient).DownloadFile('https://download.oracle.com/graalvm/21/archive/graalvm-jdk-21.0.2_windows-x64_bin.zip', 'graalvm.zip') }"
 
     powershell -Command "if (Test-Path('graalvm')) { return } else { Expand-Archive graalvm.zip graalvm }"
 

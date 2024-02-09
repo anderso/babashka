@@ -1,6 +1,7 @@
 (ns babashka.main-test
   {:clj-kondo/config '{:linters {:unresolved-symbol {:exclude [working?]}}}}
   (:require
+   [babashka.fs :as fs]
    [babashka.main :as main]
    [babashka.test-utils :as test-utils]
    [clojure.edn :as edn]
@@ -68,8 +69,12 @@
          (parse-opts ["--force" "clojure" "-M" "-r"])))
   (testing "file opts parsing does not mess with :command-line-args"
     (is (= {:prn true, :expressions ["(prn :foo)"]}
-           (-> (let [opts (main/parse-file-opt ["-e" "(prn :foo)"] {})]
-                 (main/parse-opts ["-e" "(prn :foo)"] opts)))))))
+           (-> (let [[_ opts] (main/parse-file-opt ["-e" "(prn :foo)"] {})]
+                 (main/parse-opts ["-e" "(prn :foo)"] opts)))))
+    (is (= {:file "foo", :command-line-args ["README.md"]}
+           (main/parse-opts ["README.md"] {:file "foo"})))
+    (is (= ["--version"] (bb nil (fs/file "test-resources" "script_with_overlapping_opts.clj") "--version")))
+    (is (= ["version"] (bb nil (fs/file "test-resources" "script_with_overlapping_opts.clj") "version")))))
 
 (deftest version-test
   (is (= [1 0 0] (main/parse-version "1.0.0-SNAPSHOT")))
@@ -885,6 +890,14 @@ true")))
 
 (deftest get-watches-test
   (is (true? (bb nil "(map? (.getWatches (doto (atom nil) (add-watch :foo (fn [k r o n])))))"))))
+
+(deftest tools-reader-test
+  (is (= :user/foo (bb nil "(require '[clojure.tools.reader :as r]) (r/read-string \"::foo\")")))
+  (is (= :clojure.tools.reader/foo (bb nil "(require '[clojure.tools.reader :as r]) (r/read-string \"::r/foo\")")))
+  (is (= [1 2 3] (bb nil "
+(require '[clojure.tools.reader :as r])
+(binding [r/*default-data-reader-fn* (fn [sym] (fn [val] [1 2 3]))]
+(r/read-string \"#dude []\"))"))))
 
 ;;;; Scratch
 

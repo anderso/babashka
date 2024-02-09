@@ -21,8 +21,9 @@
                    :non-flaky (complement :flaky)
                    :flaky :flaky}
   :jvm-opts ["--enable-preview"]
-  :dependencies [[org.clojure/clojure "1.12.0-alpha5"]
-                 [borkdude/edamame "1.3.23"]
+
+  :dependencies [[org.clojure/clojure "1.12.0-alpha6"]
+                 [borkdude/edamame "1.4.24"]
                  [borkdude/graal.locking "0.0.2"]
                  [org.clojure/tools.cli "1.0.214"]
                  [cheshire "5.12.0"]
@@ -35,7 +36,7 @@
                  [com.github.clj-easy/graal-build-time "0.1.0"]
                  [rewrite-clj/rewrite-clj "1.1.47"]
                  [insn/insn "0.5.2"]
-                 [org.babashka/cli "0.7.53"]
+                 [org.babashka/cli "0.8.55"]
                  [org.babashka/http-client "0.4.15"]]
   :plugins       [[org.kipz/lein-meta-bom "0.1.1"]]
   :metabom {:jar-name "metabom.jar"}

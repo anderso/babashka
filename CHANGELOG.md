@@ -9,11 +9,48 @@ A preview of the next release can be installed from
 
 ## Unreleased
 
-- Add `java.security.KeyFactory`, `java.security.spec.PKCS8EncodedKeySpec`, `java.net.URISyntaxException`
+- [#1660](https://github.com/babashka/babashka/issues/1660): add `:deps-root` as part of hash to avoid caching issue with `deps.clj`
+- [#1632](https://github.com/babashka/babashka/issues/1632): fix `(.readPassword (System/console))` by upgrading GraalVM to `21.0.2`
+- [#1661](https://github.com/babashka/babashka/issues/1661): follow symlink when reading adjacent bb.edn
+- [#1665](https://github.com/babashka/babashka/issues/1665): `read-string` should use non-indexing reader
+- Uberjar task: support reader conditional in .cljc file
+
+## 1.3.188 (2023-01-12)
+
+- [#1658](https://github.com/babashka/babashka/issues/1658): fix command line parsing for scripts that parse `--version` or `version` etc
+
+## 1.3.187 (2023-01-09)
+
+- Add `clojure.reflect/reflect`
+- Add `java.util.ScheduledFuture`, `java.time.temporal.WeekFields`
+- Support `Runnable` to be used without import
+- Allow `catch` to be used as var name
+- [#1646](https://github.com/babashka/babashka/issues/1646): command-line-args are dropped when file exists with same name
+- [#1645](https://github.com/babashka/babashka/issues/1645): Support for `clojure.lang.LongRange`
+- [#1652](https://github.com/babashka/babashka/issues/1652): allow `bb.edn` to be empty
+- [#1586](https://github.com/babashka/babashka/issues/1586): warn when config file doesn't exist and `--debug` is enabled
+- [#1410](https://github.com/babashka/babashka/issues/1410): better error message when exec fn doesn't exist
+- Bump `babashka.cli` to `0.8.55` which contains subcommand improvements
+- Bump `deps.clj` to `1.11.1.1435`
+- Bump `babashka.fs` to `0.5.20`
+- Compatibility with `plumbing.core`
+- Compatibility with `shadow.css` by improving `tools.reader` compatibility
+- [#1647](https://github.com/babashka/babashka/issues/1647): Allow capturing env vars at build time (only relevant for building bb)
+
+## 1.3.186 (2023-11-02)
+
+- [Support self-contained binaries as uberjars!](https://github.com/babashka/babashka/wiki/Self-contained-executable#uberjar)
+- Add `java.security.KeyFactory`, `java.security.spec.PKCS8EncodedKeySpec`, `java.net.URISyntaxException`, `javax.crypto.spec.IvParameterSpec`
 - Fix babashka.process/exec wrt `babashka.process/*defaults*`
-- #1632: Partial fix for `(.readPassword (System/console))`
+- [#1632](https://github.com/babashka/babashka/issues/1632): Partial fix for `(.readPassword (System/console))`
 - Enable producing self-contained binaries using [uberjars](https://github.com/babashka/babashka/wiki/Self-contained-executable#uberjar)
 - Bump httpkit to `2.8.0-beta3` (fixes GraalVM issue with virtual threads)
+- Bump `deps.clj` and `fs`
+- Expose `taoensso.timbre.appenders.core`
+- nREPL: implement `ns-list` op
+- SCI: optimize `swap!`, `deref` and `reset!` for normal atoms (rather than user-created `IAtom`s)
+- Add test for [#1639](https://github.com/babashka/babashka/issues/1639)
+- Upgrade to GraalVM 21.0.1
 
 ## 1.3.185 (2023-09-28)
 

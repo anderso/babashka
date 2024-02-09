@@ -19,6 +19,7 @@
    [babashka.impl.clojure.java.shell :refer [shell-namespace]]
    [babashka.impl.clojure.main :as clojure-main :refer [demunge]]
    [babashka.impl.clojure.math :refer [math-namespace]]
+   [babashka.impl.clojure.reflect :refer [reflect-namespace]]
    [babashka.impl.clojure.stacktrace :refer [stacktrace-namespace]]
    [babashka.impl.clojure.tools.reader :refer [reader-namespace]]
    [babashka.impl.clojure.tools.reader-types :refer [edn-namespace
@@ -407,6 +408,7 @@ Use bb run --help to show this help output.
     'clojure.tools.reader reader-namespace
     'clojure.core.async async-namespace
     'clojure.core.async.impl.protocols async-protocols-namespace
+    'clojure.reflect reflect-namespace
     'rewrite-clj.node rewrite/node-namespace
     'rewrite-clj.paredit rewrite/paredit-namespace
     'rewrite-clj.parser rewrite/parser-namespace
@@ -718,13 +720,13 @@ Use bb run --help to show this help output.
 (defn parse-file-opt
   [options opts-map]
   (let [opt (first options)]
-    (if (and opt (fs/exists? opt))
-      (let [opts (assoc opts-map
-                        (if (str/ends-with? opt ".jar")
-                          :jar :file) opt
-                        :command-line-args (next options))]
-        opts)
-      opts-map)))
+    (if (and opt (and (fs/exists? opt)
+                      (not (fs/directory? opt))))
+      [nil (assoc opts-map
+                  (if (str/ends-with? opt ".jar")
+                    :jar :file) opt
+                  :command-line-args (next options))]
+      [options opts-map])))
 
 (defn parse-opts
   ([options] (parse-opts options nil))
@@ -741,11 +743,10 @@ Use bb run --help to show this help output.
      (if-not opt opts-map
              ;; FILE > TASK > SUBCOMMAND
              (cond
-               (.isFile (io/file opt))
-               (if (or (:file opts-map) (:jar opts-map))
-                 opts-map ; we've already parsed the file opt
-                 (parse-file-opt options opts-map))
-
+               (and (not (or (:file opts-map)
+                             (:jar opts-map)))
+                    (.isFile (io/file opt)))
+               (parse-file-opt options opts-map)
                (contains? tasks opt)
                (assoc opts-map
                       :run opt
@@ -1114,7 +1115,7 @@ Use bb run --help to show this help output.
                       (>= patch-current patch-min)))))))
 
 (defn read-bb-edn [string]
-  (try (edn/read-string {:default tagged-literal} string)
+  (try (edn/read-string {:default tagged-literal :eof nil} string)
        (catch java.lang.RuntimeException e
          (if (re-find #"No dispatch macro for: \"" (.getMessage e))
            (throw (ex-info "Invalid regex literal found in EDN config, use re-pattern instead" {}))
@@ -1139,24 +1140,36 @@ Use bb run --help to show this help output.
                         (catch Exception _ false))
                bin))))))
 
+(defn resolve-symbolic-link [f]
+  (if (and f (fs/exists? f))
+    (str (fs/real-path f))
+    f))
+
 (defn main [& args]
   (let [bin-jar (binary-invoked-as-jar)
         args (if bin-jar
                (list* "--jar" bin-jar "--" args)
                args)
         [args opts] (parse-global-opts args)
-        {:keys [jar file config merge-deps] :as opts}
+        [args {:keys [config merge-deps debug] :as opts}]
         (if-not (or (:file opts)
                     (:jar opts))
           (parse-file-opt args opts)
-          opts)
-        abs-path #(-> % io/file .getAbsolutePath)
+          [args opts])
+        {:keys [jar file]} opts
+        abs-path resolve-symbolic-link
         config (cond
-                 config (when (fs/exists? config) (abs-path config))
-                 jar (some-> [jar] cp/new-loader (cp/resource "META-INF/bb.edn") .toString)
+                 config (if (fs/exists? config) (abs-path config)
+                            (when debug
+                              (binding [*out* *err*]
+                                (println "[babashka] WARNING: config file does not exist:" config))
+                              nil))
+                 jar (let [jar (resolve-symbolic-link jar)]
+                       (some-> [jar] cp/new-loader (cp/resource "META-INF/bb.edn") .toString))
                  :else (if (and file (fs/exists? file))
                          ;; file relative to bb.edn
-                         (let [rel-bb-edn (fs/file (fs/parent file) "bb.edn")]
+                         (let [file (abs-path file) ;; follow symlink
+                               rel-bb-edn (fs/file (fs/parent file) "bb.edn")]
                            (if (fs/exists? rel-bb-edn)
                              (abs-path rel-bb-edn)
                              ;; fall back to local bb.edn
@@ -1181,7 +1194,6 @@ Use bb run --help to show this help output.
                              edn)]
                    (vreset! common/bb-edn edn)))
         opts (parse-opts args opts)
-        ;; _ (.println System/err (str bb-edn))
         min-bb-version (:min-bb-version bb-edn)]
     (System/setProperty "java.class.path" "")
     (when min-bb-version
